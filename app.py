@@ -9,8 +9,8 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# -------- PATHS --------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# -------- PATHS (RENDER SAFE) --------
+BASE_DIR = os.getcwd()   # important for Render
 
 MODEL_PATH = os.path.join(BASE_DIR, "models", "fruit_classifier.h5")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
