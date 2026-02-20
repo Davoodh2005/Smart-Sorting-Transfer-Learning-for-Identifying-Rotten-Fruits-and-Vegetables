@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fruit Freshness AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600;800&display=swap" rel="stylesheet">
+
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+font-family:'Montserrat',sans-serif;
+height:100vh;
+display:flex;
+background:linear-gradient(120deg,#ff9966,#ff5e62);
+}
+
+/* LEFT SIDE */
+.left{
+flex:1;
+color:white;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+padding:50px;
+text-align:center;
+}
+
+.left h1{
+font-size:3rem;
+font-weight:800;
+}
+
+.left p{
+margin-top:15px;
+font-size:18px;
+opacity:.9;
+}
+
+/* RIGHT SIDE CARD */
+.right{
+flex:1;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#fff3;
+backdrop-filter:blur(12px);
+}
+
+.card{
+background:white;
+width:420px;
+padding:40px;
+border-radius:25px;
+box-shadow:0 20px 60px rgba(0,0,0,0.25);
+text-align:center;
+}
+
+.card h2{
+margin-bottom:20px;
+color:#ff5e62;
+}
+
+.upload{
+border:2px dashed #ff5e62;
+padding:30px;
+border-radius:15px;
+margin-bottom:20px;
+background:#fff6f6;
+}
+
+button{
+background:#ff5e62;
+border:none;
+color:white;
+padding:14px 35px;
+font-size:16px;
+border-radius:40px;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+background:#e04848;
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(0,0,0,.3);
+}
+
+/* RESULT */
+.result{
+margin-top:25px;
+}
+
+.label{
+font-size:22px;
+font-weight:700;
+margin-top:10px;
+}
+
+.conf{
+margin-top:5px;
+opacity:.8;
+}
+
+#uploadedImage{
+margin-top:15px;
+width:250px;
+border-radius:15px;
+display:none;
+box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+
+/* MOBILE */
+@media(max-width:900px){
+body{flex-direction:column;}
+.left{padding:30px;}
+.right{padding:30px;}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="left">
+<h1>🍎 Fruit Freshness AI</h1>
+<p>Upload a fruit or vegetable image and let AI detect whether it's fresh or rotten.</p>
+</div>
+
+<div class="right">
+<div class="card">
+
+<h2>Upload Image</h2>
+
+<form id="uploadForm" enctype="multipart/form-data">
+<div class="upload">
+<input type="file" name="file" required>
+</div>
+
+<button type="submit">Analyze Fruit</button>
+</form>
+
+<div class="result">
+<div class="label">Prediction: <span id="predictedClass"></span></div>
+<div class="conf">Confidence: <span id="confidence"></span>%</div>
+<img id="uploadedImage">
+</div>
+
+</div>
+</div>
+
+<script>
+const form=document.getElementById('uploadForm');
+const predictedClassSpan=document.getElementById('predictedClass');
+const confidenceSpan=document.getElementById('confidence');
+const uploadedImage=document.getElementById('uploadedImage');
+
+form.addEventListener('submit',async(e)=>{
+e.preventDefault();
+
+const fileInput=document.getElementsByName('file')[0];
+const formData=new FormData();
+formData.append('file',fileInput.files[0]);
+
+try{
+const response=await fetch('/predict',{method:'POST',body:formData});
+const data=await response.json();
+
+if(data.error){
+alert(data.error);
+}else{
+predictedClassSpan.textContent=data.predicted_class;
+confidenceSpan.textContent=(data.confidence*100).toFixed(2);
+
+const reader=new FileReader();
+reader.onload=function(e){
+uploadedImage.src=e.target.result;
+uploadedImage.style.display='block';
+};
+reader.readAsDataURL(fileInput.files[0]);
+}
+}catch(error){
+alert("Error: "+error.message);
+}
+});
+</script>
+
+</body>
+</html>
